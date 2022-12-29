@@ -5,7 +5,7 @@ const useCounter = (forwards = true) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (forwards) {
+      if (forwards) {  //here forwards is true so forwardCounter will be performed
         setCounter((prevCounter) => prevCounter + 1);
       } else {
         setCounter((prevCounter) => prevCounter - 1);
