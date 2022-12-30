@@ -1,47 +1,37 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
 const SimpleInput = (props) => {
-  const nameInputRef = useRef(); 
   const [enteredName, setEnteredName] = useState('');
-  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);   
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false); //we're using this state, so that browser knows that, user has been to input field, he may or may not enter value, but he's touched it
 
-  useEffect(() => {
-    if (enteredNameIsValid) {
-      console.log('Name Input is valid!');
-    }
-  }, [enteredNameIsValid]);
-
+  const enteredNameIsValid = enteredName.trim() !== '';   //if entered value is not empty, then valid
+  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;  // invalid when, value is empty and user hasn't touched the field
 
   const nameInputChangeHandler = (event) => {
-    setEnteredName(event.target.value);   //storing input keystrokes value
+    setEnteredName(event.target.value);
   };
-//Here, we're checking validation when the form is already submitted, which makes this effort not very useful.
+
+  const nameInputBlurHandler = event => {
+    setEnteredNameTouched(true);
+  };
 
   const formSubmissionHandler = (event) => {
-    event.preventDefault();   //avoid page from refreshing
+    event.preventDefault();
 
     setEnteredNameTouched(true);
 
-    if (enteredName.trim() === '') {  // trim will remove white spaces, can be used in emailvalidation, or in scenarios where spaces are not to be used
-      setEnteredNameIsValid(false);
+    if (!enteredNameIsValid) {
       return;
     }
 
-    setEnteredNameIsValid(true);  
-
-    console.log(enteredName); 
-
-    const enteredValue = nameInputRef.current.value;  // stores the input field value on form submission
-    console.log(enteredValue);
+    console.log(enteredName);
 
     // nameInputRef.current.value = ''; => NOT IDEAL, DON'T MANIPULATE THE DOM
     setEnteredName('');
+    setEnteredNameTouched(false);
   };
 
-  const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
-
-  const nameInputClasses = nameInputIsInvalid  //styling
+  const nameInputClasses = nameInputIsInvalid
     ? 'form-control invalid'
     : 'form-control';
 
@@ -50,12 +40,13 @@ const SimpleInput = (props) => {
       <div className={nameInputClasses}>
         <label htmlFor='name'>Your Name</label>
         <input
-          ref={nameInputRef}
           type='text'
           id='name'
           onChange={nameInputChangeHandler}
+          onBlur={nameInputBlurHandler}   // when user moves away from the input field, it looses focus and we assume that he's entered the value, before he submits the wrong value, give warning.
           value={enteredName}
         />
+        {/* if the input is invalid then return the paragraph */}
         {nameInputIsInvalid && (
           <p className='error-text'>Name must not be empty.</p>
         )}
