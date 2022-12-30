@@ -7,6 +7,14 @@ const SimpleInput = (props) => {
   const enteredNameIsValid = enteredName.trim() !== '';   //if entered value is not empty, then valid
   const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;  // invalid when, value is empty and user hasn't touched the field
 
+//overall formvalidation before submission
+
+  let formIsValid = false; 
+
+  if (enteredNameIsValid ) {    //enteredNameIsValid && all other properties :-> if they're valid only the set formIsValid to true and then enable form submission
+    formIsValid = true;
+  }
+
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
   };
@@ -52,7 +60,8 @@ const SimpleInput = (props) => {
         )}
       </div>
       <div className='form-actions'>
-        <button>Submit</button>
+        {/* if formIsValid = false, then disable the submit button */}
+        <button disabled={!formIsValid}>Submit</button> 
       </div>
     </form>
   );
