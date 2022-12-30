@@ -3,10 +3,15 @@ import { useState } from 'react';
 const SimpleInput = (props) => {
   const [enteredName, setEnteredName] = useState('');
   const [enteredNameTouched, setEnteredNameTouched] = useState(false); //we're using this state, so that browser knows that, user has been to input field, he may or may not enter value, but he's touched it
+  
+  const [enteredEmail, setEnteredEmail] = useState('');
+  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
 
   const enteredNameIsValid = enteredName.trim() !== '';   //if entered value is not empty, then valid
   const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;  // invalid when, value is empty and user hasn't touched the field
-
+  
+  const enteredEmailIsValid = enteredEmail.includes('@');
+  const enteredEmailIsInvalid = !enteredEmailIsValid && enteredEmailTouched;
 //overall formvalidation before submission
 
   let formIsValid = false; 
@@ -23,6 +28,15 @@ const SimpleInput = (props) => {
     setEnteredNameTouched(true);
   };
 
+  const emailInputChangeHandler = (event) => {
+    setEnteredEmail(event.target.value);
+  };
+
+  const emailInputBlurHandler = (event) => {
+    setEnteredEmailTouched(true);
+  };
+
+
   const formSubmissionHandler = (event) => {
     event.preventDefault();
 
@@ -37,9 +51,16 @@ const SimpleInput = (props) => {
     // nameInputRef.current.value = ''; => NOT IDEAL, DON'T MANIPULATE THE DOM
     setEnteredName('');
     setEnteredNameTouched(false);
+
+    setEnteredEmail('');
+    setEnteredEmailTouched(false);
   };
 
   const nameInputClasses = nameInputIsInvalid
+    ? 'form-control invalid'
+    : 'form-control';
+
+  const emailInputClasses = enteredEmailIsInvalid
     ? 'form-control invalid'
     : 'form-control';
 
@@ -59,6 +80,20 @@ const SimpleInput = (props) => {
           <p className='error-text'>Name must not be empty.</p>
         )}
       </div>
+      <div className={emailInputClasses}>
+        <label htmlFor='email'>Your E-Mail</label>
+        <input
+          type='email'
+          id='email'
+          onChange={emailInputChangeHandler}
+          onBlur={emailInputBlurHandler}
+          value={enteredEmail}
+        />
+        {enteredEmailIsInvalid && (
+          <p className='error-text'>Please enter a valid email.</p>
+        )}
+      </div>
+      
       <div className='form-actions'>
         {/* if formIsValid = false, then disable the submit button */}
         <button disabled={!formIsValid}>Submit</button> 
