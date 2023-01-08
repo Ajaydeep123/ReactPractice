@@ -22,7 +22,14 @@ So it receives the current state automatically and we should return the data whi
       method: 'PUT',
       body: JSON.stringify(cart),
     });
-  }, [cart]);
+  }, [cart]); 
+  
+/*   when using useEffect the way we currently do it: It will execute when our app starts.
+
+Why is this an issue?
+
+It's a problem because this will send the initial (i.e. empty) cart to our backend and overwrite any data stored there.
+ */
 
   return (
     <Layout>
