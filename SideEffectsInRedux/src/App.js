@@ -1,10 +1,14 @@
-import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { Fragment, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+
 import Cart from './components/Cart/Cart';
 import Layout from './components/Layout/Layout';
 import Products from './components/Shop/Products';
+import { uiActions } from './store/ui-slice';
+import Notification from './components/UI/Notification';
 
-
+let isInitial = true; //variable  to block the sending of the cart data for the very first time i.e 
+                      // when the effect function executes for the very first time
 
 function App() {
 /* we want to conditionally render the Cart component based on uiSlice's state value
@@ -15,27 +19,71 @@ So it receives the current state automatically and we should return the data whi
 
   const showCart = useSelector((state)=> state.ui.cartIsVisible);
   const cart = useSelector((state) => state.cart);
+  const dispatch = useDispatch();
+  const notification = useSelector((state) => state.ui.notification);
 
   //handling async task
   useEffect(() => {
-    fetch('https://react-req-93ea7-default-rtdb.firebaseio.com/cart.json', {
-      method: 'PUT',
-      body: JSON.stringify(cart),
+    const sendCartData = async () => {
+      dispatch(
+        uiActions.showNotification({
+          status: 'pending',
+          title: 'Sending...',
+          message: 'Sending cart data!',
+        })
+      );
+      const response = await fetch(
+        'https://react-req-93ea7-default-rtdb.firebaseio.com/cart.json',
+        {
+          method: 'PUT',
+          body: JSON.stringify(cart),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Sending cart data failed.');
+      }
+
+      dispatch(
+        uiActions.showNotification({
+          status: 'success',
+          title: 'Success!',
+          message: 'Sent cart data successfully!',
+        })
+      );
+    };
+
+    if (isInitial) {
+      isInitial = false;
+      return;   //sendCartData will not be executed and useEffect will exit, so the cart network req will not be made
+    }
+
+    sendCartData().catch((error) => {
+      dispatch(
+        uiActions.showNotification({
+          status: 'error',
+          title: 'Error!',
+          message: 'Sending cart data failed!',
+        })
+      );
     });
-  }, [cart]); 
+  }, [cart, dispatch]);
   
-/*   when using useEffect the way we currently do it: It will execute when our app starts.
-
-Why is this an issue?
-
-It's a problem because this will send the initial (i.e. empty) cart to our backend and overwrite any data stored there.
- */
 
   return (
-    <Layout>
-    { showCart && <Cart />}
-      <Products />
-    </Layout>
+    <Fragment>
+      {notification && (
+        <Notification
+          status={notification.status}
+          title={notification.title}
+          message={notification.message}
+        />
+      )}
+      <Layout>
+        {showCart && <Cart />}
+        <Products />
+      </Layout>
+    </Fragment>
   );
 }
 
