@@ -2,7 +2,8 @@ import { useState } from 'react';
 
 
 // ***Wrong Naming here ****
-
+//Same component at same position preserves the state
+// It’s the same component at the same position, so from React’s perspective, it’s the same counter.
 export default function App() {
   const [isFancy, setIsFancy] = useState(false);
   return (
